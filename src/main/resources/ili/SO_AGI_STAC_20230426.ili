@@ -17,6 +17,7 @@ VERSION "2023-04-26" =
     SOOID = OID TEXT*255;
 
   TOPIC Collections =
+    OID AS SOOID;
 
     STRUCTURE Office =
       AgencyName : TEXT;

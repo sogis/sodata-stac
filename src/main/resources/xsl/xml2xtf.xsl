@@ -1,73 +1,63 @@
 <?xml version="1.0"?>
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:myns="ch.so.agi" xmlns:eCH-0132="http://www.ech.ch/xmlns/eCH-0132/3" xmlns:eCH-0129="http://www.ech.ch/xmlns/eCH-0129/6" xmlns:eCH-0058="http://www.ech.ch/xmlns/eCH-0058/5" xmlns:eCH-0010="http://www.ech.ch/xmlns/eCH-0010/6" exclude-result-prefixes="myns eCH-0132 eCH-0129 eCH-0058 eCH-0010" version="3.0"> 
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:myns="ch.so.agi" exclude-result-prefixes="myns" version="3.0"> 
     <xsl:output method="xml" indent="yes"/>
     
-    <xsl:key name="myns:lookup-eventType" match="myns:data" use="@key" />
-    <xsl:variable name="myns:eventType-lookup">
-        <myns:data key="3" value="Neubau" />
-        <myns:data key="4" value="Anbau" />
-        <myns:data key="5" value="Umbau" />
-        <myns:data key="6" value="Teilabbruch" />
-        <myns:data key="11" value="Wiederaufnahme" />
-        <myns:data key="16" value="Trennung" />
-        <myns:data key="17" value="Vereinigung" />
-        <myns:data key="18" value="Entlassung" />
-        <myns:data key="19" value="Loeschung.Abbruch" />
-        <myns:data key="20" value="Loeschung.Vereinigung" />
-        <myns:data key="21" value="Loeschung.Schaden" />
-        <myns:data key="26" value="Neuaufnahme" />
-    </xsl:variable>
 
-    <xsl:key name="myns:lookup-buildingCategoryType" match="myns:data" use="@key" />
-    <xsl:variable name="myns:buildingCategoryType-lookup">
-        <myns:data key="1010" value="Provisorische Unterkunft" />
-        <myns:data key="1020" value="Reine Wohngebäude (Wohnnutzung ausschliesslich)" />
-        <myns:data key="1030" value="Wohngebäude mit Nebennutzung" />
-        <myns:data key="1040" value="Gebäude mit teilweiser Wohnnutzung" />
-        <myns:data key="1060" value="Gebäude ohne Wohnnutzung" />
-        <myns:data key="1080" value="Sonderbau" />
-    </xsl:variable>
-
-
-    <xsl:template match="/eCH-0132:delivery">
+    <xsl:template match="/themePublications">
         <TRANSFER xmlns="http://www.interlis.ch/INTERLIS2.3">
-        <HEADERSECTION SENDER="eCH0132" VERSION="2.3">
+        <HEADERSECTION SENDER="sodata" VERSION="2.3">
             <MODELS>
-            <MODEL NAME="SO_AGI_SGV_Meldungen_20221109" VERSION="2022-11-09" URI="https://agi.so.ch"/>
+            <MODEL NAME="SO_AGI_STAC_20230426" VERSION="2023-04-26" URI="https://agi.so.ch"/>
             </MODELS>
         </HEADERSECTION>
 
-        <!-- TODO 
-        * Versicherungsbeginn: falsch im XML (metaDataName) oder fehlt gänzlich. Sollte mandatory sein.
-        * Umgang mit den verschiednene eventType in der Transformation: sind die immer sehr ähnlich? fehlt einfach was? (-> zusätliche if prüfung)
-        -->
-
-        <!-- Bemerkungen
-        * Pro Meldung (z.B. newInsuranceValue) sind mehrere "buidlingInformationType" möglich. Dort sind dann wieder mehrere Grundstücke möglich. 
-          Wie mache ich das grundsätzlich und wie mit XSLT? (-> TID? position()?)
-          - pro building und pro Grundstück ein INTERLIS-Objekt?
-          - jedoch werden immer alle Eingänge (buildingEntranceInformation) allen INTERLIS-Objekte zugewiesen
-          -> Ich nehme nur jeweils das erste Element? Nachfragen bei SGV.
-        * Fehlt EGID? Gemäss SGV führen sie diesen nicht.
-
-        * Gemeinde wird nicht geliefert. Dünkt mich. Wir könntes sie mit einem Update updaten (nache dem Import oder beim Transfer in Pub)
-
-        * Kann Mehrwert negativ sein? (er kann aber anscheinend 0 sein)
-        -->
-
         <DATASECTION>
-            <SO_AGI_SGV_Meldungen_20221109.Meldungen BID="SO_AGI_SGV_Meldungen_20221109.Meldungen">
+            <SO_AGI_STAC_20230426.Collections BID="SO_AGI_STAC_20230426.Collections">
 
                 <xsl:message>Hallo Delivery</xsl:message>
 
-                <xsl:apply-templates select="eCH-0132:newInsuranceValue | eCH-0132:cancellation" /> 
+                <xsl:apply-templates select="themePublication" /> 
 
-            </SO_AGI_SGV_Meldungen_20221109.Meldungen>
+            </SO_AGI_STAC_20230426.Collections>
 
         </DATASECTION>
         </TRANSFER>
     </xsl:template>
 
+    <xsl:template match="themePublication">     
+        <SO_AGI_STAC_20230426.Collections.Collection xmlns="http://www.interlis.ch/INTERLIS2.3" TID="{identifier}">
+            <Identifier xmlns="http://www.interlis.ch/INTERLIS2.3">
+                <xsl:value-of select="identifier"/>
+            </Identifier>
+            <Title xmlns="http://www.interlis.ch/INTERLIS2.3">
+                <xsl:value-of select="title"/>
+            </Title>
+            <ShortDescription xmlns="http://www.interlis.ch/INTERLIS2.3">
+                <xsl:value-of select="shortDescription"/>
+            </ShortDescription>
+            <SpatialExtent xmlns="http://www.interlis.ch/INTERLIS2.3">
+                <SO_AGI_STAC_20230426.Collections.BoundingBox xmlns="http://www.interlis.ch/INTERLIS2.3">
+                    <westlimit xmlns="http://www.interlis.ch/INTERLIS2.3"><xsl:value-of select="bbox/left"/></westlimit>
+                    <southlimit xmlns="http://www.interlis.ch/INTERLIS2.3"><xsl:value-of select="bbox/bottom"/></southlimit>
+                    <eastlimit xmlns="http://www.interlis.ch/INTERLIS2.3"><xsl:value-of select="bbox/right"/></eastlimit>
+                    <northlimit xmlns="http://www.interlis.ch/INTERLIS2.3"><xsl:value-of select="bbox/top"/></northlimit>
+                </SO_AGI_STAC_20230426.Collections.BoundingBox>
+            </SpatialExtent>
+            <TemporalExtent xmlns="http://www.interlis.ch/INTERLIS2.3">
+                <SO_AGI_STAC_20230426.Collections.Interval xmlns="http://www.interlis.ch/INTERLIS2.3">
+                    <xsl:if test="secondToLastPublishingDate" >
+                        <StartDate xmlns="http://www.interlis.ch/INTERLIS2.3"><xsl:value-of select="secondToLastPublishingDate"/></StartDate>
+                    </xsl:if>
+                    <EndDate xmlns="http://www.interlis.ch/INTERLIS2.3"><xsl:value-of select="lastPublishingDate"/></EndDate>
+                </SO_AGI_STAC_20230426.Collections.Interval>
+            </TemporalExtent>
+            <Licence xmlns="http://www.interlis.ch/INTERLIS2.3">https://files.geo.so.ch/nutzungsbedingungen.html</Licence>
+
+        </SO_AGI_STAC_20230426.Collections.Collection>
+
+    </xsl:template>
+
+<!--
     <xsl:template match="eCH-0132:newInsuranceValue | eCH-0132:cancellation">
         <xsl:message>Hallo newInsuranceValue or cancellation</xsl:message>
 
@@ -169,7 +159,8 @@
 
         </SO_AGI_SGV_Meldungen_20221109.Meldungen.Meldung>
     </xsl:template>
-
+-->
+<!--
     <xsl:template name="custodianOrPolicyholder">
         <xsl:param name="address" />
         <xsl:choose>
@@ -195,5 +186,6 @@
         <xsl:text>&#x20;</xsl:text>
         <xsl:value-of select="$address/eCH-0010:addressInformation/eCH-0010:town" />
     </xsl:template>
+-->
 
 </xsl:stylesheet>
