@@ -43,7 +43,7 @@ VERSION "2023-04-26" =
     STRUCTURE Asset = 
       Identifier : MANDATORY TEXT;
       Title : MANDATORY TEXT;
-      MediaType : MANDATORY TEXT; !! FIXME
+      MediaType : MANDATORY TEXT; !! FIXME? Enumeration?
       Href : MANDATORY URI;
     END Asset;
 
@@ -52,6 +52,7 @@ VERSION "2023-04-26" =
       Date: MANDATORY FORMAT INTERLIS.XMLDate "1990-1-1" .. "2100-12-31";
       Boundary : BoundingBox;
       Geometry : MTEXT; !! FIXME 
+      !!@ili2db.mapping=JSON
       Assets : BAG {1..*} OF Asset;
     END Item;
 
@@ -63,14 +64,17 @@ VERSION "2023-04-26" =
       Identifier : MANDATORY TEXT;
       Title : MANDATORY TEXT;
       ShortDescription : MTEXT;
+      !!@ili2db.mapping=JSON
       SpatialExtent : BAG {1..*} OF BoundingBox;
+      !!@ili2db.mapping=JSON
       TemporalExtent : BAG {1..*} OF Interval;
       Licence : MANDATORY URI;
+      !!@ili2db.mapping=JSON
       Keywords : BAG {0..*} OF Keyword_;
       !!owner : MANDATORY SO_AGI_STAC_20230426.Office_; Siehe   "providers" inkl "roless"
       !!servicer : MANDATORY SO_AGI_STAC_20230426.Office_;
+      !!@ili2db.mapping=JSON
       Items : BAG {1..*} OF Item;
-      !!downloadHostUrl : MANDATORY URI;
 
       UNIQUE Identifier;
     END Collection;
