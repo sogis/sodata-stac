@@ -8,16 +8,18 @@ import org.springframework.context.annotation.Bean;
 import ch.so.agi.sodata.stac.service.ConfigService;
 
 @SpringBootApplication
-public class SodataStacApplication {
+public class Application {
 
 	public static void main(String[] args) {
-		SpringApplication.run(SodataStacApplication.class, args);
+		SpringApplication.run(Application.class, args);
 	}
 
     // Anwendung ist fertig gestartet: live aber nicht ready.
     @Bean
     CommandLineRunner init(ConfigService configService) {
         return args -> {
+            
+            System.out.println("Hallo Welt.");
             configService.parse();
         };
     }

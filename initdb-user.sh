@@ -1,0 +1,24 @@
+#!/bin/bash
+set -e
+
+psql --set=POSTGRES_DB="$POSTGRES_DB" --set=PG_USER="$PG_USER" --set=PG_PASSWORD="$PG_PASSWORD" -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
+    SET password_encryption = md5;
+
+    CREATE USER :PG_USER with password :'PG_PASSWORD';
+
+    ALTER USER :PG_USER CREATEROLE;
+
+    CREATE USER dmluser WITH PASSWORD 'dmluser';
+
+    CREATE USER gretl WITH PASSWORD 'gretl';
+
+    GRANT ALL PRIVILEGES ON DATABASE :POSTGRES_DB to :PG_USER;
+
+    REVOKE TEMPORARY ON DATABASE :POSTGRES_DB FROM PUBLIC;
+
+    REVOKE CREATE ON SCHEMA public FROM PUBLIC;
+
+    CREATE EXTENSION pg_stat_statements;
+
+    CREATE EXTENSION "uuid-ossp";
+EOSQL

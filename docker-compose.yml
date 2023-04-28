@@ -1,0 +1,19 @@
+version: '3'
+services:
+  edit-db:
+    image: sogis/postgis:15-3.3
+    environment:
+      POSTGRES_DB: edit
+      POSTGRES_HOST_AUTH_METHOD: md5
+      PGPORT: 5432
+      PGUSER: postgres
+      PG_USER: ddluser
+      PG_PASSWORD: ddluser
+      POSTGRES_PASSWORD: secret
+      PG_DATA: /pgdata
+    ports:
+      - "54321:5432"
+    volumes:
+      - ./initdb-user.sh:/docker-entrypoint-initdb.d/20_initdb-user.sh
+    labels:
+      org.springframework.boot.service-connection: postgres
