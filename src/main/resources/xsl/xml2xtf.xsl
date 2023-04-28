@@ -53,6 +53,61 @@
             </TemporalExtent>
             <Licence xmlns="http://www.interlis.ch/INTERLIS2.3">https://files.geo.so.ch/nutzungsbedingungen.html</Licence>
 
+            <xsl:if test="keywords">
+                <Keywords xmlns="http://www.interlis.ch/INTERLIS2.3">
+                    <xsl:for-each select="keywords/keyword">
+                        <SO_AGI_STAC_20230426.Collections.Keyword_ xmlns="http://www.interlis.ch/INTERLIS2.3">
+                            <Keyword xmlns="http://www.interlis.ch/INTERLIS2.3"><xsl:value-of select="."/></Keyword>
+                        </SO_AGI_STAC_20230426.Collections.Keyword_>
+                    </xsl:for-each>
+                </Keywords>
+            </xsl:if>
+
+            <Items xmlns="http://www.interlis.ch/INTERLIS2.3">
+                <xsl:variable name="itemsNo" select="count(items/item)"/>
+                
+                <xsl:for-each select="items/item">
+                    <xsl:variable name="itemIdentifier" select="identifier"/>
+                    
+                    <SO_AGI_STAC_20230426.Collections.Item xmlns="http://www.interlis.ch/INTERLIS2.3">
+                        <Identifier xmlns="http://www.interlis.ch/INTERLIS2.3"><xsl:value-of select="identifier"/></Identifier>
+                        <Date xmlns="http://www.interlis.ch/INTERLIS2.3"><xsl:value-of select="lastPublishingDate"/></Date>
+                        <Boundary xmlns="http://www.interlis.ch/INTERLIS2.3">
+                            <SO_AGI_STAC_20230426.Collections.BoundingBox xmlns="http://www.interlis.ch/INTERLIS2.3">
+                                <westlimit xmlns="http://www.interlis.ch/INTERLIS2.3"><xsl:value-of select="bbox/left"/></westlimit>
+                                <southlimit xmlns="http://www.interlis.ch/INTERLIS2.3"><xsl:value-of select="bbox/bottom"/></southlimit>
+                                <eastlimit xmlns="http://www.interlis.ch/INTERLIS2.3"><xsl:value-of select="bbox/right"/></eastlimit>
+                                <northlimit xmlns="http://www.interlis.ch/INTERLIS2.3"><xsl:value-of select="bbox/top"/></northlimit>
+                            </SO_AGI_STAC_20230426.Collections.BoundingBox>
+                        </Boundary>
+                        <Geometry xmlns="http://www.interlis.ch/INTERLIS2.3"><xsl:value-of select="geometry"/></Geometry>
+                        <Assets xmlns="http://www.interlis.ch/INTERLIS2.3">
+
+
+                            <xsl:for-each select="../../fileFormats/fileFormat">
+                                <xsl:variable name="assetIdentifierTmp" select="concat(../../identifier, '.', abbreviation)"/>
+                                <xsl:variable name="assetIdentifier">
+                                    <xsl:choose>
+                                        <xsl:when test="$itemsNo > 1">
+                                            <xsl:value-of select="concat($itemIdentifier, '.', ../../identifier, '.', abbreviation)"/>
+                                        </xsl:when>
+                                        <xsl:otherwise>
+                                            <xsl:value-of select="$assetIdentifierTmp" />
+                                        </xsl:otherwise>
+                                    </xsl:choose>
+                                </xsl:variable>
+                                    <SO_AGI_STAC_20230426.Collections.Asset xmlns="http://www.interlis.ch/INTERLIS2.3">
+                                        <Identifier xmlns="http://www.interlis.ch/INTERLIS2.3"><xsl:value-of select="$assetIdentifier"/></Identifier>
+                                        <Title xmlns="http://www.interlis.ch/INTERLIS2.3"><xsl:value-of select="concat($itemIdentifier, ' (', abbreviation, ')')"/></Title>
+                                        <MediaType xmlns="http://www.interlis.ch/INTERLIS2.3"><xsl:value-of select="mimetype"/></MediaType>
+                                        <Href xmlns="http://www.interlis.ch/INTERLIS2.3"><xsl:value-of select="concat(../../downloadHostUrl, '/', ../../identifier, '/aktuell/', $assetIdentifier)"/></Href>
+                                    </SO_AGI_STAC_20230426.Collections.Asset>
+                            </xsl:for-each>
+                        </Assets>
+                    </SO_AGI_STAC_20230426.Collections.Item>
+                </xsl:for-each>
+            </Items>
+
         </SO_AGI_STAC_20230426.Collections.Collection>
 
     </xsl:template>
