@@ -15,3 +15,5 @@ java -jar /Users/stefan/apps/ili2pg-4.9.1/ili2pg-4.9.1.jar --dbhost localhost --
 ```
 -Dspring.profiles.active=dev
 ```
+
+Sonst wird beim Entwickeln nicht die TestApplication-Main-Klasse verwendet. Diese muss explizit bei Run Configurations gewählt werden.
