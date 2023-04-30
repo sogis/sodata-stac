@@ -15,13 +15,13 @@ public class Application {
 	}
 
     // Anwendung ist fertig gestartet: live aber nicht ready.
-    @Bean
-    CommandLineRunner init(ConfigService configService) {
-        return args -> {
-            
-            System.out.println("Hallo Welt.");
-            configService.parse();
-        };
-    }
+//    @Bean
+//    CommandLineRunner init(ConfigService configService) {
+//        return args -> {
+//            
+//            System.out.println("Hallo Welt.");
+//            configService.parse();
+//        };
+//    }
 
 }
