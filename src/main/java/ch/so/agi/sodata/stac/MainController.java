@@ -15,6 +15,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -37,7 +38,6 @@ public class MainController {
         parameters.addValue("host", getHost());
         
         String sql = Util.loadUtf8("sql/catalog.sql");
-        log.info(sql);
         
         String foo = jdbcParamTemplate.queryForObject(sql, parameters, String.class); 
 
@@ -51,15 +51,17 @@ public class MainController {
 //            
 //        });
        
-        log.info(foo.toString());
-        
-        
         return new ResponseEntity<String>(foo, HttpStatus.OK);
-        //return foo;
-
-        
     }
 
+    @GetMapping(value = "/{collectionId}/collection.json", produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<?> getCollection(@PathVariable String collectionId) {
+
+        
+        return new ResponseEntity<String>(collectionId, HttpStatus.OK);
+    }
+    
+    
     private String getHost() {
         return ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
     }    
