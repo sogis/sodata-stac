@@ -1,5 +1,7 @@
 # sodata-stac
 
+
+
 ```
 java -jar /Users/stefan/apps/SaxonHE10-6J/saxon-he-10.6.jar -s:src/test/resources/datasearch.xml -xsl:src/main/resources/xsl/xml2xtf.xsl -o:src/test/resources/datasearch.xtf
 
@@ -17,3 +19,8 @@ java -jar /Users/stefan/apps/ili2pg-4.9.1/ili2pg-4.9.1.jar --dbhost localhost --
 ```
 
 Sonst wird beim Entwickeln nicht die DevApplication-Main-Klasse verwendet. Diese muss explizit bei Run Configurations gewählt werden.
+
+
+## todo
+
+- Sinnvolle Index setzen in DB
