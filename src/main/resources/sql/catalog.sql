@@ -1,4 +1,4 @@
- WITH links AS 
+WITH links AS 
 (
     SELECT 
         jsonb_strip_nulls(json_agg(c)::jsonb) AS link_array
@@ -6,13 +6,13 @@
     (
         SELECT 
             'root' AS rel,
-            'http://localhost:8080'||'/catalog.json' AS href,
+            :host||'/catalog.json' AS href,
             'application/json' AS "type",
             NULL::TEXT AS title
         UNION ALL
         SELECT 
             'child' AS rel,
-            'http://localhost:8080'||'/'||identifier||'/collection.json' AS href,
+            :host||'/'||identifier||'/collection.json' AS href,
             'application/json' AS "type",
             title AS title
         FROM 
@@ -20,7 +20,7 @@
         UNION ALL
         SELECT 
             'self' AS rel,
-            'http://localhost:8080'||'/catalog.json' AS href,
+            :host||'/catalog.json' AS href,
             'application/json' AS "type",
             NULL::TEXT AS title
     ) AS c
