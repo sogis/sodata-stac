@@ -37,9 +37,9 @@ public class MainController {
         MapSqlParameterSource parameters = new MapSqlParameterSource();
         parameters.addValue("host", getHost());
         
-        String sql = Util.loadUtf8("sql/catalog.sql");
+        String query = Util.loadUtf8("sql/catalog.sql");
         
-        String foo = jdbcParamTemplate.queryForObject(sql, parameters, String.class); 
+        String foo = jdbcParamTemplate.queryForObject(query, parameters, String.class); 
 
         
 //        String foo = jdbcTemplate.queryForObject(sql, String.class);  .query("SELECT identifier FROM agi_stac_v1.collection", new RowMapper<String>() {
