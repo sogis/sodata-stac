@@ -70,7 +70,16 @@
                     <xsl:variable name="itemIdentifier" select="identifier"/>
                     
                     <SO_AGI_STAC_20230426.Collections.Item xmlns="http://www.interlis.ch/INTERLIS2.3">
-                        <Identifier xmlns="http://www.interlis.ch/INTERLIS2.3"><xsl:value-of select="identifier"/></Identifier>
+                        <Identifier xmlns="http://www.interlis.ch/INTERLIS2.3">
+                            <xsl:choose>
+                                <xsl:when test="$itemsNo > 1">
+                                    <xsl:value-of select="concat(identifier,'.',../../identifier)"/>
+                                </xsl:when>
+                                <xsl:otherwise>
+                                        <xsl:value-of select="../../identifier"/>
+                                </xsl:otherwise>
+                            </xsl:choose>
+                        </Identifier>
                         <Date xmlns="http://www.interlis.ch/INTERLIS2.3"><xsl:value-of select="lastPublishingDate"/></Date>
                         <Boundary xmlns="http://www.interlis.ch/INTERLIS2.3">
                             <SO_AGI_STAC_20230426.Collections.BoundingBox xmlns="http://www.interlis.ch/INTERLIS2.3">
