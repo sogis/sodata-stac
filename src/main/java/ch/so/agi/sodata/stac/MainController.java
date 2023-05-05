@@ -68,6 +68,7 @@ public class MainController {
     // TODO:
     // - Datenmodell Item erweitern mit Titel.
     // Dieser setzen beim rel=item. Vielleicht sieht man diesen im Stacbrowser.
+    // - stmts nur einmal aus file lesen.
     
     
     
