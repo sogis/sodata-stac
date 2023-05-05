@@ -64,13 +64,27 @@ public class MainController {
         return new ResponseEntity<String>(json, HttpStatus.OK);
     }
     
+    
+    // TODO:
+    // - Datenmodell Item erweitern mit Titel.
+    // Dieser setzen beim rel=item. Vielleicht sieht man diesen im Stacbrowser.
+    
+    
+    
     @GetMapping(value = "/{collectionId}/{itemId}/{itemId}.json", produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<?> getItem(@PathVariable String collectionId, @PathVariable String itemId) {
+        MapSqlParameterSource parameters = new MapSqlParameterSource();
+        parameters.addValue("host", getHost());
+        parameters.addValue("id", itemId);
+        parameters.addValue("collectionId", collectionId);
 
         System.out.println(collectionId);
         System.out.println(itemId);
         
-        return new ResponseEntity<String>(itemId, HttpStatus.OK);
+        String stmt = Util.loadUtf8("sql/item.sql");        
+        String json = jdbcParamTemplate.queryForObject(stmt, parameters, String.class); 
+
+        return new ResponseEntity<String>(json, HttpStatus.OK);
     }
     
     

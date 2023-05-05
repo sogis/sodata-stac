@@ -107,7 +107,16 @@
                                 </xsl:variable>
                                     <SO_AGI_STAC_20230426.Collections.Asset xmlns="http://www.interlis.ch/INTERLIS2.3">
                                         <Identifier xmlns="http://www.interlis.ch/INTERLIS2.3"><xsl:value-of select="$assetIdentifier"/></Identifier>
-                                        <Title xmlns="http://www.interlis.ch/INTERLIS2.3"><xsl:value-of select="concat($itemIdentifier, ' (', abbreviation, ')')"/></Title>
+                                        <Title xmlns="http://www.interlis.ch/INTERLIS2.3">
+                                            <xsl:choose>
+                                                <xsl:when test="$itemIdentifier = 'so'"> <!--Kosmetik-->
+                                                    <xsl:value-of select="concat('Kanton Solothurn', ' (', abbreviation, ')')"/>
+                                                </xsl:when>
+                                                <xsl:otherwise>
+                                                    <xsl:value-of select="concat($itemIdentifier, ' (', abbreviation, ')')"/>
+                                                </xsl:otherwise>
+                                            </xsl:choose>
+                                        </Title>
                                         <MediaType xmlns="http://www.interlis.ch/INTERLIS2.3"><xsl:value-of select="mimetype"/></MediaType>
                                         <Href xmlns="http://www.interlis.ch/INTERLIS2.3"><xsl:value-of select="concat(../../downloadHostUrl, '/', ../../identifier, '/aktuell/', $assetIdentifier)"/></Href>
                                     </SO_AGI_STAC_20230426.Collections.Asset>
