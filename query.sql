@@ -1,145 +1,49 @@
-
-
--- TODO:
--- XSL-Umbau: falls es nur ein Item gibt, wird der Item identifier=Collection.identifier gesetzt.
--- Damit fällt es mir leichter die Child URL zu machen. Und v.a. auch die item-Query anschliessend.
-
-/*
- * (1) Extent Queries funktionieren nur solange es nur jeweils ein (1) Interval oder eine Bbox in den 
- * Ausgangsdaten gibt. Möglich sind mehrere. 
- */
-WITH items AS (
-    SELECT 
-        item.*,
-        collection.identifier AS collection_identifier
-    FROM 
-        agi_stac_v1.item AS item 
-        LEFT JOIN agi_stac_v1.collection AS collection
-        ON collection.t_id = item.collection_items
-    WHERE 
-        collection.identifier = :id          
-)
-,
-links_array AS 
+WITH bbox_obj AS 
 (
     SELECT 
-        jsonb_strip_nulls(json_agg(c)::jsonb) AS link_array
+        jsonb_build_array(
+            ST_XMin(extent),
+            ST_YMin(extent),
+            ST_XMax(extent),
+            ST_YMax(extent)
+        ) AS bbox       
     FROM 
     (
         SELECT 
-            'root' AS rel,
-            'http://localhost:8080'||'/catalog.json' AS href,
-            'application/json' AS "type",
-            NULL::TEXT AS title
-        UNION ALL
-        SELECT 
-            'parent' AS rel,
-            'http://localhost:8080'||'/catalog.json' AS href,
-            'application/json' AS "type",
-            NULL::TEXT AS title
-        UNION ALL
-        SELECT 
-            --items.*
-            'child' AS rel,
-            CASE 
-                WHEN items.identifier = 'so' THEN 'foo'
-                ELSE 'bar'
-            END AS href,
-            
-            --'http://localhost:8080'||'/'||collection.identifier||'/collection.json' AS href,
-            'application/json' AS "type",
-            NULL::TEXT AS title
+            ST_Extent(ST_Transform(ST_GeomFromText(ageometry, 2056), 4326)) AS extent
         FROM 
-            items
-        UNION ALL
-        SELECT
-            'self' AS rel,
-            :host||'/'||identifier||'/collection.json' AS href,
-            'application/json' AS "type",
-            title AS title
-        FROM 
-            agi_stac_v1.collection  
-        WHERE 
-            identifier = :id
-    ) AS c
-)
-
-,
-spatialextent_obj AS 
-(
-    SELECT 
-        jsonb_build_object(
-            'bbox',
-            jsonb_build_array(
-                jsonb_build_array(
-                    ST_X(lowerleft),
-                    ST_Y(upperright),
-                    ST_X(lowerleft),
-                    ST_Y(upperright)
-                )        
-            )        
-        ) AS spatialextent 
-    FROM 
-    (
-        SELECT 
-            ST_Transform(ST_SetSrid(ST_MakePoint((spatialextent->>'westlimit')::float, (spatialextent->>'southlimit')::float), 2056), 4326) AS lowerleft,
-            ST_Transform(ST_SetSrid(ST_MakePoint((spatialextent->>'eastlimit')::float, (spatialextent->>'northlimit')::float), 2056), 4326) AS upperright
-        FROM 
-            agi_stac_v1.collection
+            agi_stac_v1.item
         WHERE 
             identifier = :id
     ) AS foo
 )
 ,
-temporalextent_obj AS 
-(
-    SELECT
-        jsonb_build_object(
-            'interval',
-            jsonb_build_array(
-                jsonb_build_array(
-                    to_char(date(temporalextent->>'StartDate') AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"'),
-                    to_char(date(temporalextent->>'EndDate') AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"')
-                )
-            )
-        ) AS temporalextent
-    FROM 
-        agi_stac_v1.collection
-    WHERE 
-        identifier = :id
-)
-,
 main_obj AS 
 (
     SELECT 
-        --*
-        'Collection' AS "type",
-        identifier AS id, 
-        '1.0.0' AS stac_version,
-        title AS title,
-        shortdescription AS description,
-        licence AS licence,
-        jsonb_build_object(
-            'extent',
-            json_build_object(
-                'spatial',
-                spatialextent_obj.spatialextent,
-                'temporal',
-                temporalextent_obj.temporalextent
-            )
-        )
-        --spatialextent->'eastlimit'
-
+        row_to_json(r) AS main
     FROM 
-        agi_stac_v1.collection,
-        spatialextent_obj,
-        temporalextent_obj
-    WHERE 
-        identifier = :id
+    (
+        SELECT 
+            'Feature' AS "type",
+            '1.0.0' AS stac_version,
+            :id AS id,
+            jsonb_build_object(
+                'datetime',
+                to_char(adate AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"')                
+            ) AS properties,
+            --ST_AsGeoJSON(ST_Transform(ST_GeomFromText(ageometry, 2056), 4326))::json AS geometry,
+            bbox_obj.bbox AS bbox,
+            :collectionId AS collection
+        FROM 
+            agi_stac_v1.item,
+            bbox_obj
+        WHERE 
+            identifier = :id
+    ) AS r
 )
-
-SELECT
+SELECT 
     *
 FROM 
-    --main_obj
-    links_array
+    main_obj
+;

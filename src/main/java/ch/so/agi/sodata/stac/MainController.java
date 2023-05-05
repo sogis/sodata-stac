@@ -33,13 +33,11 @@ public class MainController {
 
     @GetMapping(value = "/catalog.json", produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<?> getCatalog() {
-        
         MapSqlParameterSource parameters = new MapSqlParameterSource();
         parameters.addValue("host", getHost());
         
-        String query = Util.loadUtf8("sql/catalog.sql");
-        
-        String foo = jdbcParamTemplate.queryForObject(query, parameters, String.class); 
+        String stmt = Util.loadUtf8("sql/catalog.sql");
+        String json = jdbcParamTemplate.queryForObject(stmt, parameters, String.class); 
 
         
 //        String foo = jdbcTemplate.queryForObject(sql, String.class);  .query("SELECT identifier FROM agi_stac_v1.collection", new RowMapper<String>() {
@@ -51,15 +49,30 @@ public class MainController {
 //            
 //        });
        
-        return new ResponseEntity<String>(foo, HttpStatus.OK);
+        return new ResponseEntity<String>(json, HttpStatus.OK);
     }
 
     @GetMapping(value = "/{collectionId}/collection.json", produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<?> getCollection(@PathVariable String collectionId) {
-
+        MapSqlParameterSource parameters = new MapSqlParameterSource();
+        parameters.addValue("host", getHost());
+        parameters.addValue("id", collectionId);
         
-        return new ResponseEntity<String>(collectionId, HttpStatus.OK);
+        String stmt = Util.loadUtf8("sql/collection.sql");        
+        String json = jdbcParamTemplate.queryForObject(stmt, parameters, String.class); 
+
+        return new ResponseEntity<String>(json, HttpStatus.OK);
     }
+    
+    @GetMapping(value = "/{collectionId}/{itemId}/{itemId}.json", produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<?> getItem(@PathVariable String collectionId, @PathVariable String itemId) {
+
+        System.out.println(collectionId);
+        System.out.println(itemId);
+        
+        return new ResponseEntity<String>(itemId, HttpStatus.OK);
+    }
+    
     
     
     private String getHost() {

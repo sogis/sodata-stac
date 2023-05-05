@@ -24,3 +24,4 @@ Sonst wird beim Entwickeln nicht die DevApplication-Main-Klasse verwendet. Diese
 ## todo
 
 - Sinnvolle Index setzen in DB
+- Schema als Parameter
