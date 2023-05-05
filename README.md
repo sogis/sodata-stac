@@ -25,3 +25,4 @@ Sonst wird beim Entwickeln nicht die DevApplication-Main-Klasse verwendet. Diese
 
 - Sinnvolle Index setzen in DB
 - Schema als Parameter
+- Keywords, offices
