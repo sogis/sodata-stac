@@ -16,7 +16,7 @@ WITH links AS
             'application/json' AS "type",
             title AS title
         FROM 
-            agi_stac_v1.collection  
+            :dbSchema.collection
         UNION ALL
         SELECT 
             'self' AS rel,

@@ -7,8 +7,8 @@ WITH items AS (
         item.*,
         collection.identifier AS collection_identifier
     FROM 
-        agi_stac_v1.item AS item 
-        LEFT JOIN agi_stac_v1.collection AS collection
+        :dbSchema.item AS item 
+        LEFT JOIN :dbSchema.collection AS collection
         ON collection.t_id = item.collection_items
     WHERE 
         collection.identifier = :id          
@@ -22,22 +22,21 @@ links_array AS
     (
         SELECT 
             'root' AS rel,
-            'http://localhost:8080'||'/catalog.json' AS href,
+            :host||'/catalog.json' AS href,
             'application/json' AS "type",
             NULL::TEXT AS title
         UNION ALL
         SELECT 
             'parent' AS rel,
-            'http://localhost:8080'||'/catalog.json' AS href,
+            :host||'/catalog.json' AS href,
             'application/json' AS "type",
             NULL::TEXT AS title
         UNION ALL
         SELECT 
-            --items.*
-            'child' AS rel,
+            'item' AS rel,
             :host||'/'||collection_identifier||'/'||identifier||'/'||identifier||'.json' AS href,
             'application/json' AS "type",
-            NULL::TEXT AS title
+            items.title AS title
         FROM 
             items
         UNION ALL
@@ -47,12 +46,11 @@ links_array AS
             'application/json' AS "type",
             title AS title
         FROM 
-            agi_stac_v1.collection  
+            :dbSchema.collection  
         WHERE 
             identifier = :id
     ) AS c
 )
-
 ,
 spatialextent_obj AS 
 (
@@ -74,7 +72,7 @@ spatialextent_obj AS
             ST_Transform(ST_SetSrid(ST_MakePoint((spatialextent->>'westlimit')::float, (spatialextent->>'southlimit')::float), 2056), 4326) AS lowerleft,
             ST_Transform(ST_SetSrid(ST_MakePoint((spatialextent->>'eastlimit')::float, (spatialextent->>'northlimit')::float), 2056), 4326) AS upperright
         FROM 
-            agi_stac_v1.collection
+            :dbSchema.collection
         WHERE 
             identifier = :id
     ) AS foo
@@ -93,7 +91,7 @@ temporalextent_obj AS
             )
         ) AS temporalextent
     FROM 
-        agi_stac_v1.collection
+        :dbSchema.collection
     WHERE 
         identifier = :id
 )
@@ -119,7 +117,7 @@ main_obj AS
                 ) AS extent,
             links_array.links
         FROM 
-            agi_stac_v1.collection,
+            :dbSchema.collection,
             spatialextent_obj,
             temporalextent_obj,
             links_array

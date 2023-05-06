@@ -80,6 +80,7 @@
                                 </xsl:otherwise>
                             </xsl:choose>
                         </Identifier>
+                        <Title xmlns="http://www.interlis.ch/INTERLIS2.3"><xsl:value-of select="title"/></Title>
                         <Date xmlns="http://www.interlis.ch/INTERLIS2.3"><xsl:value-of select="lastPublishingDate"/></Date>
                         <Boundary xmlns="http://www.interlis.ch/INTERLIS2.3">
                             <SO_AGI_STAC_20230426.Collections.BoundingBox xmlns="http://www.interlis.ch/INTERLIS2.3">

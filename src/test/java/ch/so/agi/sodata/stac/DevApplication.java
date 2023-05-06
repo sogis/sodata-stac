@@ -41,8 +41,8 @@ public class DevApplication {
     @Bean
     CommandLineRunner devInit(JdbcConnectionDetails postgres, ConfigService configService) {
         return args -> {
-            System.out.println("Hallo from DevApplication");
-            System.out.println(postgres.getJdbcUrl());
+//            System.out.println("Hallo from DevApplication");
+//            System.out.println(postgres.getJdbcUrl());
             
             Config settings = new Config();
             new PgMain().initConfig(settings);

@@ -13,10 +13,42 @@ WITH bbox_obj AS
         SELECT 
             ST_Extent(ST_Transform(ST_GeomFromText(ageometry, 2056), 4326)) AS extent
         FROM 
-            agi_stac_v1.item
+            :dbSchema.item
         WHERE 
             identifier = :id
     ) AS foo
+)
+,
+links_array AS 
+(
+    SELECT 
+        jsonb_strip_nulls(json_agg(c)::jsonb) AS links
+    FROM 
+    (
+        SELECT 
+            'root' AS rel,
+            :host||'/catalog.json' AS href,
+            'application/json' AS "type",
+            NULL::TEXT AS title
+        UNION ALL
+        SELECT 
+            'parent' AS rel,
+            :host||'/'||:collectionId||'/collection.json' AS href,
+            'application/json' AS "type",
+            NULL::TEXT AS title
+        UNION ALL
+        SELECT 
+            'collection' AS rel,
+            :host||'/'||:collectionId||'/collection.json' AS href,
+            'application/json' AS "type",
+            NULL::TEXT AS title
+        UNION ALL
+        SELECT
+            'self' AS rel,
+            :host||'/'||:collectionId||'/'||:id||'/'||:id||'.json' AS href,
+            'application/json' AS "type",
+            NULL::TEXT AS title
+    ) AS c
 )
 ,
 assets_obj AS 
@@ -51,7 +83,7 @@ assets_obj AS
                         ELSE jsonb_build_array(assets)
                     END AS asset
                 FROM 
-                    agi_stac_v1.item 
+                    :dbSchema.item 
                 WHERE 
                     identifier = :id
             ) AS asset_array
@@ -73,12 +105,14 @@ main_obj AS
                 'datetime',
                 to_char(adate AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"')                
             ) AS properties,
-            --ST_AsGeoJSON(ST_Transform(ST_GeomFromText(ageometry, 2056), 4326))::json AS geometry,
+            ST_AsGeoJSON(ST_Transform(ST_GeomFromText(ageometry, 2056), 4326))::json AS geometry,
+            links_array.links,
             assets_obj.assets AS assets,
             bbox_obj.bbox AS bbox,
             :collectionId AS collection
         FROM 
-            agi_stac_v1.item,
+            :dbSchema.item,
+            links_array,
             assets_obj,
             bbox_obj
         WHERE 
@@ -88,6 +122,7 @@ main_obj AS
 SELECT 
     --jsonb_pretty(main::jsonb)
     main::text
+    --main
 FROM 
     main_obj
 ;
