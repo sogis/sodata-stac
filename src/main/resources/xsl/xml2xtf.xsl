@@ -63,6 +63,32 @@
                 </Keywords>
             </xsl:if>
 
+            <Owner xmlns="http://www.interlis.ch/INTERLIS2.3">
+                <SO_AGI_STAC_20230426.Collections.Office xmlns="http://www.interlis.ch/INTERLIS2.3">
+                    <AgencyName xmlns="http://www.interlis.ch/INTERLIS2.3"><xsl:value-of select="owner/agencyName"/></AgencyName>
+                    <Abbreviation xmlns="http://www.interlis.ch/INTERLIS2.3"><xsl:value-of select="owner/abbreviation"/></Abbreviation>
+                    <xsl:if test="owner/division">
+                        <Division xmlns="http://www.interlis.ch/INTERLIS2.3"><xsl:value-of select="owner/division"/></Division>
+                    </xsl:if>
+                    <OfficeAtWeb xmlns="http://www.interlis.ch/INTERLIS2.3"><xsl:value-of select="owner/officeAtWeb"/></OfficeAtWeb>
+                    <Email xmlns="http://www.interlis.ch/INTERLIS2.3"><xsl:value-of select="owner/email"/></Email>
+                    <Phone xmlns="http://www.interlis.ch/INTERLIS2.3"><xsl:value-of select="owner/phone"/></Phone>
+                </SO_AGI_STAC_20230426.Collections.Office>
+            </Owner>
+
+            <Servicer xmlns="http://www.interlis.ch/INTERLIS2.3">
+                <SO_AGI_STAC_20230426.Collections.Office xmlns="http://www.interlis.ch/INTERLIS2.3">
+                    <AgencyName xmlns="http://www.interlis.ch/INTERLIS2.3"><xsl:value-of select="servicer/agencyName"/></AgencyName>
+                   <Abbreviation xmlns="http://www.interlis.ch/INTERLIS2.3"><xsl:value-of select="servicer/abbreviation"/></Abbreviation>
+                    <xsl:if test="servicer/division">
+                        <Division xmlns="http://www.interlis.ch/INTERLIS2.3"><xsl:value-of select="servicer/division"/></Division>
+                    </xsl:if>
+                    <OfficeAtWeb xmlns="http://www.interlis.ch/INTERLIS2.3"><xsl:value-of select="servicer/officeAtWeb"/></OfficeAtWeb>
+                    <Email xmlns="http://www.interlis.ch/INTERLIS2.3"><xsl:value-of select="servicer/email"/></Email>
+                    <Phone xmlns="http://www.interlis.ch/INTERLIS2.3"><xsl:value-of select="servicer/phone"/></Phone>
+                </SO_AGI_STAC_20230426.Collections.Office>
+            </Servicer>
+
             <Items xmlns="http://www.interlis.ch/INTERLIS2.3">
                 <xsl:variable name="itemsNo" select="count(items/item)"/>
                 
@@ -80,7 +106,16 @@
                                 </xsl:otherwise>
                             </xsl:choose>
                         </Identifier>
-                        <Title xmlns="http://www.interlis.ch/INTERLIS2.3"><xsl:value-of select="title"/></Title>
+                        <Title xmlns="http://www.interlis.ch/INTERLIS2.3">
+                            <xsl:choose>
+                                <xsl:when test="$itemIdentifier = 'so'"> <!--Kosmetik-->
+                                    <xsl:text>Kanton Solothurn</xsl:text>
+                                </xsl:when>
+                                <xsl:otherwise>
+                                    <xsl:value-of select="title"/>
+                                </xsl:otherwise>
+                            </xsl:choose>
+                        </Title>
                         <Date xmlns="http://www.interlis.ch/INTERLIS2.3"><xsl:value-of select="lastPublishingDate"/></Date>
                         <Boundary xmlns="http://www.interlis.ch/INTERLIS2.3">
                             <SO_AGI_STAC_20230426.Collections.BoundingBox xmlns="http://www.interlis.ch/INTERLIS2.3">
@@ -92,8 +127,6 @@
                         </Boundary>
                         <Geometry xmlns="http://www.interlis.ch/INTERLIS2.3"><xsl:value-of select="geometry"/></Geometry>
                         <Assets xmlns="http://www.interlis.ch/INTERLIS2.3">
-
-
                             <xsl:for-each select="../../fileFormats/fileFormat">
                                 <xsl:variable name="assetIdentifierTmp" select="concat(../../identifier, '.', abbreviation)"/>
                                 <xsl:variable name="assetIdentifier">

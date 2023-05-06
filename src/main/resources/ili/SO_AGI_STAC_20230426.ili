@@ -70,10 +70,12 @@ VERSION "2023-04-26" =
       !!@ili2db.mapping=JSON
       TemporalExtent : BAG {1..*} OF Interval;
       Licence : MANDATORY URI;
-      !! !!@ili2db.mapping=JSON
+      !!@ili2db.mapping=JSON
       Keywords : BAG {0..*} OF Keyword_;
-      !!owner : MANDATORY SO_AGI_STAC_20230426.Office_; Siehe   "providers" inkl "roless"
-      !!servicer : MANDATORY SO_AGI_STAC_20230426.Office_;
+      !!@ili2db.mapping=JSON
+      Owner : MANDATORY Office;
+      !!@ili2db.mapping=JSON
+      Servicer : MANDATORY Office;
       !! !!@ili2db.mapping=JSON
       Items : BAG {1..*} OF Item;
 

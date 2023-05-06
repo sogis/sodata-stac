@@ -17,7 +17,7 @@ WITH items AS (
 links_array AS 
 (
     SELECT 
-        jsonb_strip_nulls(json_agg(c)::jsonb) AS links
+        jsonb_strip_nulls(jsonb_agg(c)) AS links
     FROM 
     (
         SELECT 
@@ -96,10 +96,74 @@ temporalextent_obj AS
         identifier = :id
 )
 ,
+keywords_array AS 
+(
+    SELECT 
+        jsonb_agg(
+            keywords->>'Keyword'
+        ) AS keywords
+    FROM    
+    (
+        SELECT 
+            jsonb_array_elements(keyword) AS keywords
+        FROM 
+        (
+            -- Siehe assets bei den items (ist wegen ili2db)
+            SELECT 
+                CASE 
+                    WHEN jsonb_typeof(keywords) = 'array' THEN keywords
+                    ELSE jsonb_build_array(keywords)
+                END AS keyword
+            FROM 
+                :dbSchema.collection 
+            WHERE
+                keywords IS NOT NULL
+            AND 
+                identifier = :id
+        ) AS foo    
+    ) AS bar
+)
+,
+providers_array AS 
+(
+    SELECT 
+        jsonb_agg(provider) AS providers
+    FROM 
+    (
+        SELECT 
+            jsonb_build_object(
+                'name',
+                aowner->>'AgencyName',
+                'roles',
+                jsonb_build_array('processor'),
+                'url',
+                aowner->>'OfficeAtWeb'
+            ) AS provider
+        FROM 
+            :dbSchema.collection
+        WHERE 
+            identifier = :id    
+        UNION ALL 
+        SELECT 
+            jsonb_build_object(
+                'name',
+                servicer->>'AgencyName',
+                'roles',
+                jsonb_build_array('host'),
+                'url',
+                servicer->>'OfficeAtWeb'
+            ) AS provider
+        FROM 
+            :dbSchema.collection
+        WHERE 
+            identifier = :id    
+    ) AS providers
+)
+,
 main_obj AS 
 (
     SELECT 
-        row_to_json(r) AS main
+        json_strip_nulls(row_to_json(r))::jsonb AS main
     FROM 
     (
         SELECT 
@@ -115,12 +179,22 @@ main_obj AS
                     'temporal',
                     temporalextent_obj.temporalextent
                 ) AS extent,
-            links_array.links
+            links_array.links,
+            keywords_array.keywords AS keywords,
+            providers_array.providers AS providers,
+            jsonb_build_object(
+                'proj:epsg',
+                '2056',
+                'proj:name',
+                'CH1903+ / LV95'
+            ) AS summaries
         FROM 
             :dbSchema.collection,
             spatialextent_obj,
             temporalextent_obj,
-            links_array
+            links_array,
+            keywords_array,
+            providers_array
         WHERE 
             identifier = :id
     ) AS r
@@ -128,6 +202,7 @@ main_obj AS
 SELECT 
     --jsonb_pretty(main::jsonb)
     main::text
+    --main
 FROM 
     main_obj
 ;
