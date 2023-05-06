@@ -50,9 +50,10 @@ public class DevApplication {
             settings.setModels(MODEL_NAME);
             settings.setModeldir(MODEL_DIR);
             settings.setDoImplicitSchemaImport(true);
-            settings.setValidation(true);
+            settings.setValidation(false);
             settings.setJsonTrafo(Config.JSON_TRAFO_COALESCE);
             settings.setDeleteMode(Config.DELETE_DATA);
+            settings.setBatchSize(5000);
             
             Properties props = org.postgresql.Driver.parseURL(postgres.getJdbcUrl(), null);
 

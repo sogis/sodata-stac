@@ -1,6 +1,9 @@
 
 WITH bbox_obj AS 
 (
+    -- Ich rechne aus der Geometrie die Boundingbox. Scheint mir
+    -- einfacher als sie aus dem Json-Objekt zu lesen.
+    -- Wahrscheinlich auch nicht viel langsamer, wenn überhaupt.
     SELECT 
         jsonb_build_array(
             ST_XMin(extent),

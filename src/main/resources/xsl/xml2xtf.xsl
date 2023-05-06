@@ -53,7 +53,8 @@
             </TemporalExtent>
             <Licence xmlns="http://www.interlis.ch/INTERLIS2.3">https://files.geo.so.ch/nutzungsbedingungen.html</Licence>
 
-            <xsl:if test="keywords">
+            <!-- Ignoriert Tags, falls das erste Element vorhanden ist aber leer ist. Nicht super robust. -->    
+            <xsl:if test="string-length(keywords/keyword[1]) > 1">
                 <Keywords xmlns="http://www.interlis.ch/INTERLIS2.3">
                     <xsl:for-each select="keywords/keyword">
                         <SO_AGI_STAC_20230426.Collections.Keyword_ xmlns="http://www.interlis.ch/INTERLIS2.3">
@@ -109,7 +110,7 @@
                         <Title xmlns="http://www.interlis.ch/INTERLIS2.3">
                             <xsl:choose>
                                 <xsl:when test="$itemIdentifier = 'so'"> <!--Kosmetik-->
-                                    <xsl:text>Kanton Solothurn</xsl:text>
+                                    <xsl:value-of select="concat(../../title, ' (Kanton Solothurn)')"/>
                                 </xsl:when>
                                 <xsl:otherwise>
                                     <xsl:value-of select="title"/>
@@ -144,7 +145,7 @@
                                         <Title xmlns="http://www.interlis.ch/INTERLIS2.3">
                                             <xsl:choose>
                                                 <xsl:when test="$itemIdentifier = 'so'"> <!--Kosmetik-->
-                                                    <xsl:value-of select="concat('Kanton Solothurn', ' (', abbreviation, ')')"/>
+                                                    <xsl:value-of select="concat(../../title, ' (Kanton Solothurn / ', abbreviation, ')')"/>
                                                 </xsl:when>
                                                 <xsl:otherwise>
                                                     <xsl:value-of select="concat($itemIdentifier, ' (', abbreviation, ')')"/>

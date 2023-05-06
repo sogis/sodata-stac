@@ -44,9 +44,11 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
+/*
 test {
     filter {
         excludeTestsMatching "ch.so.agi.sodata.stac.TestApplication"
     }
  }
+ */
 
