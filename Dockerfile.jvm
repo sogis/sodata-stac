@@ -1,0 +1,26 @@
+FROM bellsoft/liberica-openjdk-alpine:17.0.7
+
+ARG UID=1001
+RUN adduser -S sodata -u $UID
+
+ENV HOME=/app
+WORKDIR $HOME
+
+COPY build/libs/sodata-stac-*-exec.jar ./application.jar
+
+RUN chown $UID:0 . && \
+    chmod 0775 . && \
+    ls -la
+
+USER $UID
+EXPOSE 8080
+ENV LOG4J_FORMAT_MSG_NO_LOOKUPS=true
+CMD java -XX:MaxRAMPercentage=80.0 -jar application.jar \
+  "--server.tomcat.threads.max=${TOMCAT_THREADS_MAX:-20}" \
+  "--server.tomcat.accept-count=${TOMCAT_ACCEPT_COUNT:-100}" \
+  "--server.tomcat.max-connections=${TOMCAT_MAX_CONNECTIONS:-500}" \
+  "--spring.datasource.hikari.maximum-pool-size=${HIKARI_MAX_POOL_SIZE:-10}" \
+  "--spring.datasource.url=${DBURL}" \
+  "--spring.datasource.username=${DBUSR}" \
+  "--spring.datasource.password=${DBPWD}" \
+  "--app.dbSchema=${DBSCHEMA:-agi_stac_v1}"

@@ -30,8 +30,8 @@ public class MainController {
     @Value("${app.dbSchema}")
     private String dbSchema;
     
-    @Autowired
-    JdbcTemplate jdbcTemplate;
+//    @Autowired
+//    JdbcTemplate jdbcTemplate;
 
     @Autowired
     NamedParameterJdbcTemplate jdbcParamTemplate;

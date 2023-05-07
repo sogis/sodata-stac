@@ -14,7 +14,6 @@ import ch.ehi.ili2db.base.Ili2db;
 import ch.ehi.ili2db.base.Ili2dbException;
 import ch.ehi.ili2db.gui.Config;
 import ch.ehi.ili2pg.PgMain;
-import ch.so.agi.sodata.stac.service.ConfigService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,11 +38,8 @@ public class DevApplication {
     }
     
     @Bean
-    CommandLineRunner devInit(JdbcConnectionDetails postgres, ConfigService configService) {
+    CommandLineRunner devInit(JdbcConnectionDetails postgres) {
         return args -> {
-//            System.out.println("Hallo from DevApplication");
-//            System.out.println(postgres.getJdbcUrl());
-            
             Config settings = new Config();
             new PgMain().initConfig(settings);
             settings.setFunction(Config.FC_IMPORT);

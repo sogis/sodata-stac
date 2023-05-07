@@ -8,8 +8,6 @@ import org.springframework.web.filter.ForwardedHeaderFilter;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import ch.so.agi.sodata.stac.service.ConfigService;
-
 @SpringBootApplication
 public class Application {
 
@@ -33,15 +31,11 @@ public class Application {
             }
         };
     }
-
 	
     // Anwendung ist fertig gestartet: live aber nicht ready.
 //    @Bean
 //    CommandLineRunner init(ConfigService configService) {
 //        return args -> {
-//            
-//            System.out.println("Hallo Welt.");
-//            configService.parse();
 //        };
 //    }
 

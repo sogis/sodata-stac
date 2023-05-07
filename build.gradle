@@ -31,24 +31,29 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-jdbc'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     
-    implementation 'org.springframework.boot:spring-boot-docker-compose'
-    
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
-    runtimeOnly 'org.postgresql:postgresql'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'ch.interlis:ili2pg:4.11.0'
     
+    runtimeOnly 'org.postgresql:postgresql'
+    
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.boot:spring-boot-docker-compose'
+    testImplementation 'org.springframework.boot:spring-boot-testcontainers'
+    testImplementation 'org.testcontainers:junit-jupiter'
+    testImplementation 'org.testcontainers:postgresql'
+    testImplementation 'ch.interlis:ili2pg:4.11.0'
+    testImplementation 'ch.ehi:ehibasics:1.4.0' // Sonst wird Settings beim Testen nicht gefunden.
+    testImplementation 'org.postgresql:postgresql' // In DevApplication wird org.postgresql.PGProperty verwendet, darum reicht runtimeOnly nicht.
 }
 
 tasks.named('test') {
     useJUnitPlatform()
 }
 
-/*
+
 test {
     filter {
         excludeTestsMatching "ch.so.agi.sodata.stac.TestApplication"
     }
  }
- */
+ 
 
