@@ -66,6 +66,8 @@ class ApplicationTests {
 	public void collection_Ok() throws IOException {
 	    String response = this.restTemplate.getForObject("http://localhost:" + port + "/ch.so.alw.strukturverbesserungen/collection.json", String.class);
 	    String expected = Files.readString(Path.of("src/test/data/collection_expected.json"));
+	    
+	    System.out.println(response);
 
         assertEquals(mapper.readTree(response.replace("http://localhost:"+port, "http://localhost")), mapper.readTree(expected));
 	}

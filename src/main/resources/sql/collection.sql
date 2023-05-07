@@ -59,10 +59,11 @@ spatialextent_obj AS
             'bbox',
             jsonb_build_array(
                 jsonb_build_array(
-                    ST_X(lowerleft),
-                    ST_Y(lowerleft),
-                    ST_X(upperright),
-                    ST_Y(upperright)
+                    -- Runden weil Output nicht auf jedem OS gleich.
+                    round(ST_X(lowerleft)::numeric, 12),
+                    round(ST_Y(lowerleft)::numeric, 12),
+                    round(ST_X(upperright)::numeric, 12),
+                    round(ST_Y(upperright)::numeric, 12)
                 )        
             )        
         ) AS spatialextent 
