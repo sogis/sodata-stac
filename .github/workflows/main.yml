@@ -37,6 +37,12 @@ jobs:
           ./gradlew clean build
           ls -la build/libs
 
+      - uses: actions/upload-artifact@v2
+        if: ${{ failure() }}
+        with:
+          name: reports
+          path: build/reports/tests/
+          
       - name: Set up QEMU for amd64
         uses: docker/setup-qemu-action@v2
         with:
