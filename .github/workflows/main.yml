@@ -34,6 +34,7 @@ jobs:
 
       - name: Build 
         run: |
+          export TZ="Europe/Zurich"
           ./gradlew clean build
           ls -la build/libs
 
@@ -42,7 +43,7 @@ jobs:
         with:
           name: reports
           path: build/reports/tests/
-          
+
       - name: Set up QEMU for amd64
         uses: docker/setup-qemu-action@v2
         with:

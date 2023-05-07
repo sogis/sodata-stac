@@ -14,6 +14,8 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.IOException;
@@ -29,6 +31,9 @@ class ApplicationTests {
     @LocalServerPort
     private int port;
     
+    @Autowired
+    ObjectMapper mapper;
+
     @Autowired
     private TestRestTemplate restTemplate;
 
@@ -53,20 +58,23 @@ class ApplicationTests {
 	public void catalog_Ok() throws IOException {
 	    String response = this.restTemplate.getForObject("http://localhost:" + port + "/catalog.json", String.class);
 	    String expected = Files.readString(Path.of("src/test/data/catalog_expected.json"));
-	    assertEquals(response.replace("http://localhost:"+port, "http://localhost"), expected);
+
+        assertEquals(mapper.readTree(response.replace("http://localhost:"+port, "http://localhost")), mapper.readTree(expected));
 	}
 
 	@Test
 	public void collection_Ok() throws IOException {
 	    String response = this.restTemplate.getForObject("http://localhost:" + port + "/ch.so.alw.strukturverbesserungen/collection.json", String.class);
 	    String expected = Files.readString(Path.of("src/test/data/collection_expected.json"));
-	    assertEquals(response.replace("http://localhost:"+port, "http://localhost"), expected);
+
+        assertEquals(mapper.readTree(response.replace("http://localhost:"+port, "http://localhost")), mapper.readTree(expected));
 	}
 	
    @Test
     public void item_Ok() throws IOException {
         String response = this.restTemplate.getForObject("http://localhost:" + port + "/ch.so.alw.strukturverbesserungen/ch.so.alw.strukturverbesserungen/ch.so.alw.strukturverbesserungen.json", String.class);
         String expected = Files.readString(Path.of("src/test/data/item_expected.json"));
-        assertEquals(response.replace("http://localhost:"+port, "http://localhost"), expected);
+        
+        assertEquals(mapper.readTree(response.replace("http://localhost:"+port, "http://localhost")), mapper.readTree(expected));
     }
 }
