@@ -106,4 +106,6 @@ Import wird während der Entwicklung und des Testens im Code selber gemacht. Hie
 
 ```
 java -jar /Users/stefan/apps/ili2pg-4.9.1/ili2pg-4.9.1.jar --dbhost localhost --dbport 54321 --dbdatabase edit --dbusr ddluser --dbpwd ddluser --modeldir src/main/resources/ili --models SO_AGI_STAC_20230426 --dbschema agi_stac_v1 --disableValidation --doSchemaImport --coalesceJson --importBatchSize 5000 --import src/test/resources/datasearch.xtf
+
+java -jar /Users/stefan/apps/ili2pg-4.9.1/ili2pg-4.9.1.jar --dbhost localhost --dbport 54321 --dbdatabase edit --dbusr ddluser --dbpwd ddluser --modeldir src/main/resources/ili --models SO_AGI_STAC_20230426 --dbschema agi_stac_v1 --disableValidation  --importBatchSize 5000 --import src/test/resources/datasearch.xtf
 ```
