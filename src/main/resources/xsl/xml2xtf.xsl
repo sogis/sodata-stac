@@ -14,8 +14,6 @@
         <DATASECTION>
             <SO_AGI_STAC_20230426.Collections BID="SO_AGI_STAC_20230426.Collections">
 
-                <xsl:message>Hallo Delivery</xsl:message>
-
                 <xsl:apply-templates select="themePublication" /> 
 
             </SO_AGI_STAC_20230426.Collections>
@@ -25,6 +23,7 @@
     </xsl:template>
 
     <xsl:template match="themePublication">     
+        <xsl:message><xsl:value-of select="identifier"/></xsl:message>
         <SO_AGI_STAC_20230426.Collections.Collection xmlns="http://www.interlis.ch/INTERLIS2.3" TID="{identifier}">
             <Identifier xmlns="http://www.interlis.ch/INTERLIS2.3">
                 <xsl:value-of select="identifier"/>
