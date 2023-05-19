@@ -14,7 +14,7 @@ Das Repository verwaltet den Quellcode der Herstellung und Bereitstellung des ST
 
 ## Komponenten
 
-"sodata-stac" besteht aus einer der vorliegenden Komponente in Form einer Spring Boot Anwendung. Sie wiederum ist Bestandteil der funktionalen Einheit "Datenbezug" (https://github.com/sogis/dok/blob/dok/dok_funktionale_einheiten/Documents/Datenbezug/Datenbezug.md) **Doku anpassen!!**. Die Daten müssen einem Datenmodell entsprechend in einer PostgreSQL-Datenbank vorliegen. Die Umwandlung der Datensuche-XML-Datei in eine INTERLIS-Transferdatei wird mit XSLT in einem GRETL-Job gemacht (**LINK!!**). Im gleichen Job werden die Daten in die Datenbank importiert.
+_sodata-stac_ besteht aus der vorliegenden Komponente in Form einer Spring Boot Anwendung. Sie wiederum ist Bestandteil der funktionalen Einheit [Datenbezug](https://github.com/sogis/dok/blob/dok/dok_funktionale_einheiten/Documents/Datenbezug/Datenbezug.md). Die Daten müssen einem Datenmodell entsprechend in einer PostgreSQL-Datenbank vorliegen. Die Umwandlung der Datensuche-XML-Datei in eine INTERLIS-Transferdatei wird mit XSLT in einem [GRETL-Job](https://github.com/sogis/gretljobs/tree/main/agi_stac) gemacht. Im gleichen Job werden die Daten in die Datenbank importiert.
 
 ## Konfigurieren und Starten
 
