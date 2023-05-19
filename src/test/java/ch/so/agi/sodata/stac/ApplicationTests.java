@@ -53,23 +53,23 @@ class ApplicationTests {
     public static void init() {
         TestUtil.importXtf(postgres.getJdbcUrl());
     }
-	
-	@Test
-	public void catalog_Ok() throws IOException {
-	    String response = this.restTemplate.getForObject("http://localhost:" + port + "/catalog.json", String.class);
-	    String expected = Files.readString(Path.of("src/test/data/catalog_expected.json"));
+    
+    @Test
+    public void catalog_Ok() throws IOException {
+        String response = this.restTemplate.getForObject("http://localhost:" + port + "/catalog.json", String.class);
+        String expected = Files.readString(Path.of("src/test/data/catalog_expected.json"));
 
         assertEquals(mapper.readTree(response.replace("http://localhost:"+port, "http://localhost")), mapper.readTree(expected));
-	}
+    }
 
-	@Test
-	public void collection_Ok() throws IOException {
-	    String response = this.restTemplate.getForObject("http://localhost:" + port + "/ch.so.alw.strukturverbesserungen/collection.json", String.class);
-	    String expected = Files.readString(Path.of("src/test/data/collection_expected.json"));
+    @Test
+    public void collection_Ok() throws IOException {
+        String response = this.restTemplate.getForObject("http://localhost:" + port + "/ch.so.alw.strukturverbesserungen/collection.json", String.class);
+        String expected = Files.readString(Path.of("src/test/data/collection_expected.json"));
 
         assertEquals(mapper.readTree(response.replace("http://localhost:"+port, "http://localhost")), mapper.readTree(expected));
-	}
-	
+    }
+    
    @Test
     public void item_Ok() throws IOException {
         String response = this.restTemplate.getForObject("http://localhost:" + port + "/ch.so.alw.strukturverbesserungen/ch.so.alw.strukturverbesserungen/ch.so.alw.strukturverbesserungen.json", String.class);
