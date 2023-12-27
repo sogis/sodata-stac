@@ -72,9 +72,9 @@ class ApplicationTests {
     
    @Test
     public void item_Ok() throws IOException {
-        String response = this.restTemplate.getForObject("http://localhost:" + port + "/ch.so.alw.strukturverbesserungen/ch.so.alw.strukturverbesserungen/ch.so.alw.strukturverbesserungen.json", String.class);
-        String expected = Files.readString(Path.of("src/test/data/item_expected.json"));
+       String response = this.restTemplate.getForObject("http://localhost:" + port + "/ch.so.alw.strukturverbesserungen/ch.so.alw.strukturverbesserungen/ch.so.alw.strukturverbesserungen.json", String.class);
+       String expected = Files.readString(Path.of("src/test/data/item_expected.json"));
         
-        assertEquals(mapper.readTree(response.replace("http://localhost:"+port, "http://localhost")), mapper.readTree(expected));
+       assertEquals(mapper.readTree(response.replace("http://localhost:"+port, "http://localhost")), mapper.readTree(expected));
     }
 }
