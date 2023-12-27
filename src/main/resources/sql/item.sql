@@ -68,7 +68,9 @@ assets_obj AS
                 'type',
                 assets->>'MediaType',
                 'title',
-                assets->>'Title'
+                assets->>'Title',
+                'roles',
+                jsonb_build_array('data')
             ) AS myvalue
         FROM 
         (
