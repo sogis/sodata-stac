@@ -173,7 +173,7 @@ main_obj AS
             '1.0.0' AS stac_version,
             title AS title,
             shortdescription AS description,
-            licence AS licence,
+            licence AS license,
                 json_build_object(
                     'spatial',
                     spatialextent_obj.spatialextent,
