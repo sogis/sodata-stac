@@ -3,16 +3,21 @@ name: CI/CD
 on:
   workflow_dispatch:
   push:
+    branches: [main]
+    paths-ignore:
+      - '**.md'
+
+  pull_request:
+    branches: [main]
     paths-ignore:
       - '**.md'
 
 jobs:
   build-jvm:
-    env:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    env: &jvm-env
       DOCKER_ACCOUNT: sogis
       DOCKER_REPO: sodata-stac
-      DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
-      DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}} 
       BUILD_NUMBER: ${{ github.run_number }}
       VERSION: 0.0.${{ github.run_number }}
 
@@ -22,17 +27,20 @@ jobs:
       contents: read
       packages: write
 
-    steps:
-      - uses: actions/checkout@v3
+    steps: &jvm-steps
+      - uses: actions/checkout@v4
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
           cache: 'gradle'
 
-      - name: Build 
+      - name: Build
+        env:
+          # Testcontainers' docker-java defaults to an API older than current Docker engines accept.
+          JAVA_TOOL_OPTIONS: -Dapi.version=1.44
         run: |
           export TZ="Europe/Zurich"
           ./gradlew clean build
@@ -44,43 +52,56 @@ jobs:
           name: reports
           path: build/reports/tests/
 
-      - name: Set up QEMU for amd64
-        uses: docker/setup-qemu-action@v2
+      - name: Set up QEMU for ARM64
+        uses: docker/setup-qemu-action@v3
         with:
-          platforms: linux/amd64
+          platforms: arm64
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and smoke-test AMD64 on PRs
+        if: github.event_name == 'pull_request'
+        run: |
+          docker buildx build --platform linux/amd64 --pull --load -f Dockerfile.jvm -t sodata-stac:pr .
+          docker run --rm --network none --user 1000830000:0 sodata-stac:pr sh -ec '
+            test -r application.jar
+            test ! -w application.jar
+            java -XX:-UseBASE64Intrinsics -XX:+PrintFlagsFinal -version > /tmp/java-flags 2>&1
+            grep -E "openjdk version \"17\." /tmp/java-flags
+            grep -E "UseBASE64Intrinsics +[=:]+ false.*command line" /tmp/java-flags
+          '
+          container=$(docker run -d --network none --user 1000830000:0 --read-only --tmpfs /tmp:rw,exec \
+            -e DBURL=jdbc:postgresql://127.0.0.1:1/smoke -e DBUSR=smoke -e DBPWD=smoke \
+            -e MANAGEMENT_HEALTH_DB_ENABLED=false sodata-stac:pr)
+          trap 'docker logs "$container"; docker rm -f "$container"' EXIT
+          docker exec "$container" curl -fsS --retry 30 --retry-connrefused --retry-delay 2 \
+            http://127.0.0.1:8080/actuator/health/readiness | grep -F '"status":"UP"'
+          docker exec "$container" sh -ec 'tr "\000" "\n" < /proc/1/cmdline | grep -Fx -- "-XX:-UseBASE64Intrinsics"'
 
       - name: Login to Docker Container Registry
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
-          username: ${{ env.DOCKER_USERNAME }}
-          password: ${{ env.DOCKER_PASSWORD }}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
         if: ${{ (github.ref == 'refs/heads/main') && (github.event_name != 'pull_request') && !env.ACT }}
 
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
         if: ${{ (github.ref == 'refs/heads/main') && (github.event_name != 'pull_request') && !env.ACT }}
 
-      - name: Build and push to registries
-        uses: docker/build-push-action@v2
+      - name: Build ARM64 on PRs or publish both platforms on main
+        uses: docker/build-push-action@v6
         with:
-          platforms: linux/amd64,linux/arm64
+          platforms: ${{ github.event_name == 'pull_request' && 'linux/arm64' || 'linux/amd64,linux/arm64' }}
           context: .
           file: Dockerfile.jvm
-          labels: ${{ steps.meta.outputs.labels }}
           pull: true
           push: ${{ (github.ref == 'refs/heads/main') && (github.event_name != 'pull_request') && !env.ACT }}
-          # tags: |
-          #   ${{ env.DOCKER_ACCOUNT }}/${{ env.DOCKER_REPO }}:latest
-          #   ${{ env.DOCKER_ACCOUNT }}/${{ env.DOCKER_REPO }}:${{ env.VERSION }}
-          #   ${{ env.DOCKER_ACCOUNT }}/${{ env.DOCKER_REPO }}:0.0
-          #   ${{ env.DOCKER_ACCOUNT }}/${{ env.DOCKER_REPO }}:0
           tags: |
             ${{ env.DOCKER_ACCOUNT }}/${{ env.DOCKER_REPO }}:latest
             ${{ env.DOCKER_ACCOUNT }}/${{ env.DOCKER_REPO }}:${{ env.VERSION }}
@@ -90,3 +111,11 @@ jobs:
             ghcr.io/${{ env.DOCKER_ACCOUNT }}/${{ env.DOCKER_REPO }}:${{ env.VERSION }}
             ghcr.io/${{ env.DOCKER_ACCOUNT }}/${{ env.DOCKER_REPO }}:0.0
             ghcr.io/${{ env.DOCKER_ACCOUNT }}/${{ env.DOCKER_REPO }}:0
+
+  verify-jvm:
+    if: github.event_name == 'pull_request' || github.ref != 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env: *jvm-env
+    steps: *jvm-steps
